@@ -15,7 +15,7 @@ if {string.IsNullOrEmpty(errorMessage)
 or
 ``` C#
 // DoSomething returns a boolean value 
-if (!DoSomething(string someParam))
+if (DoSomething(someParam))
 {
 	// do some more stuff here
 }
@@ -24,12 +24,36 @@ or
 ``` C#
 // we want a boolean and a data value
 var object = outVal;
-if (!DoSomething(string someParam, out outVal))
+if (DoSomething(someParam, out outVal))
 {
 	// do some more stuff here
 }
 ```
-somehow, all of this seems pretty sloppy and disorganized. 
+and finally
+```C#
+if (DoSomething(someParam))
+{
+	if (DoSomethingElse(otherParam)
+	{
+		if (DoOneMoreThing(yetanotherParam)
+		{
+			// yousa!
+		}
+		else
+		{
+			// what error to return here?		
+		}
+	else
+	{
+		// what error to return here?		
+	}
+}
+else
+{
+	// what error to return here?		
+}
+```
+somehow, all of this seems pretty sloppy and disorganized. Wouldn't it be nice if there was just a common way to invoke a method and tell if it worked or not? And a common way to return errors?
 
 ### What's a better way?
 I've gone through a couple of iteratiions of this, trying to strip out as much un-necessary stuff, and have come up with basicall three classes that solve the problem in a way I find useful, and far more standardized.
@@ -108,6 +132,7 @@ This is a bit more interesting. Note two properties that indicate whether the op
 * A few methods to add one or more Error objects (see the first class) to the Errors list
 * Returns itself so we can get some fluency
 
+### Show me the code!
 Let's see an example of how this can be used (taken from the test project). First we need a class and method that we can call.
 ``` C#
 public class SomeUsefulClass
@@ -122,6 +147,8 @@ public class SomeUsefulClass
 	public static OperationResult<TestResultData> SomeUsefulMethodNoErrors(string someParam)
 	{
 		var result = new OperationResult<TestResultData>();
+		result.ResultData = new TestResultData(); //assumes TestResultData is a class. 
+													 // a value type of int, string etc can be assigned if <T> is a value type
 		return result;
 	}
 }
@@ -137,6 +164,7 @@ public class InvokeStuff
 	{
 
 	}
+	// optional ...
 	else
 	{
 		foreach(var error in result.Error)
@@ -149,6 +177,7 @@ public class InvokeStuff
 	{
 		var myData = result.ResultData;
 	}
+	// optional ...
 	else
 	{
 		foreach(var error in result.Error)
@@ -156,3 +185,22 @@ public class InvokeStuff
 	}
 }
 ```
+finally, let's look at the "stacked" calls:
+```C#
+if (result.AddResultErrors((SomeUsefulClass.SomeUsefulMethod("hah").Errors)).IsUnsuccessful) { return result; }
+if (result.AddResultErrors((SomeUsefulClass.AnotherUsefulMethod("hah").Errors)).IsUnsuccessful) { return result; }
+if (result.AddResultErrors((SomeUsefulClass.LastUsefulMethod("hah").Errors)).IsUnsuccessful) { return result; }
+```
+All of a sudden, stacking this stuff up looks very regular. And that's really the point. When your code has a common, reliable, repeatable structure, it's much easier for someone else to understand when your code looks like their code. This makes code more maintainable - and believe it or not, makes your unit tests better as well!
+
+In a way, one of the best confirmations I had of this, was when I started using in an application at one of my clients. Without comment, and without any sort of "what's this?" questions, others started using it.
+
+### So why the NullResultData class?
+I promised I'd get to this ...
+It's simple. It has to do with the ResultData property in the OperationResult class. 
+You can't have 
+```C#
+Null ResultData;
+```
+as a property declaration (as far as I know). So I have an "empty" class named NullResultData that is a class with no members at all.
+I could have called it "EmptyResultData" but that didn't seem as "techspeak" as using "Null" in the front of the name. So I took the lazy way out ...

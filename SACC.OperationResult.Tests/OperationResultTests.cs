@@ -130,5 +130,12 @@ namespace SACC.OperationResult.Tests
 		{
 			Assert.IsTrue(OperationProcessor.ReturnTypeErrorRange(4).IsUnsuccessful);
 		}
+
+		[TestMethod]
+		public void FluentOperationsWork()
+		{
+			var result = new OperationResult<NullResultData>();
+			if (result.AddResultErrors((OperationProcessor.ReturnNullDataMultipleErrors(2).Errors)).IsUnsuccessful) { Assert.IsTrue(true); }
+		}
 	}
 }
