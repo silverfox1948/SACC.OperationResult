@@ -1,0 +1,11 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard1.0</TargetFramework>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
+    <Copyright>Steven Archibald Consulting Corporation</Copyright>
+    <Description>A small library to standardize how data and errors are returned from called methods. Built to use .NET Standard 1.0 libraries</Description>
+  </PropertyGroup>
+
+</Project>
