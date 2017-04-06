@@ -1,2 +1,3 @@
 # SACC.OperationResult
-A little library to standardize the results of invoking a method.
+A little .NET library to standardize the results of invoking a method.
+It targets .NET Standard 1.0, so should be working on just about everything .NET...
